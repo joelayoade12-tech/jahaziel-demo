@@ -1,0 +1,53 @@
+/* ───────────────────────────────────────────────────────────
+   Base styles. Resets + global appearance.
+   Component-specific styles live in their own .css files.
+─────────────────────────────────────────────────────────── */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* Selection */
+::selection { background: rgba(31, 182, 214, 0.24); color: var(--text); }
+
+/* Inputs reset */
+button { font-family: inherit; cursor: pointer; }
+input, textarea { font-family: inherit; }
+
+/* Focus rings — visible but not aggressive */
+*:focus { outline: none; }
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+/* Code typography — used inside chat messages and panels */
+code, pre {
+  font-family: var(--font-mono);
+}
+
+/* KaTeX needs an explicit color or it picks up dark-on-dark */
+.katex { color: var(--text); }
+.katex-display { margin: 8px 0; overflow-x: auto; }
+
+/* Flash animation used by department-queue → message scroll */
+@keyframes jz-msg-flash {
+  0% { background-color: var(--accent-soft); }
+  100% { background-color: transparent; }
+}
+.msg-flash { animation: jz-msg-flash 1.4s ease-out; }

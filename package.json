@@ -1,0 +1,30 @@
+{
+  "name": "jahaziel-public-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node test.mjs && node app-core.test.mjs && node conversation-context.test.mjs && node public-capability-manifest.test.mjs",
+    "test:browser": "node app.browser.test.mjs",
+    "test:catalog": "node app.catalog.test.mjs",
+    "test:map-live": "node app.map.live.smoke.mjs",
+    "test:model-live": "node app.model.smoke.mjs --load",
+    "test:model-built": "node app.model.smoke.mjs --load --production"
+  },
+  "dependencies": {
+    "@mlc-ai/web-llm": "^0.2.85",
+    "maplibre-gl": "^6.11.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "playwright": "^1.58.2",
+    "vite": "^7.3.1"
+  }
+}

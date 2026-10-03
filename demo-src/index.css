@@ -1,0 +1,59 @@
+/* Theme loads first so tokens are available to all component CSS */
+@import "./theme/tokens.css";
+@import "./theme/base.css";
+@import "./components/DesktopAppMotifs.css";
+
+html, body, #root {
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+body {
+  min-width: 320px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Touch devices (iPhone, iPad, Android): lock the document so the
+ * page itself can't bounce-scroll, can't be pulled-to-refresh, can't
+ * be pinched. Only chat-scroll handles its own scrolling.
+ *
+ * Note: keyboard handling is done elsewhere — the input bar is
+ * position:fixed at bottom: var(--kb-height) so it tracks the
+ * keyboard automatically. The body lock here is purely about
+ * disabling iOS's native document-level gestures, NOT about
+ * fighting the keyboard. */
+@media (hover: none) and (pointer: coarse) {
+  html, body {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    overscroll-behavior: none;
+  }
+}
+
+/* Keep every overflow region scrollable without painting browser chrome. */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb:hover {
+  border: 0 !important;
+  background: transparent !important;
+}

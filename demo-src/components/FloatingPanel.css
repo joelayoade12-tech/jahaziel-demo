@@ -1,0 +1,506 @@
+.fp {
+  position: fixed;
+  background: color-mix(in srgb, var(--panel-surface, var(--bg)) 96%, var(--panel-accent) 4%);
+  border: 1px solid color-mix(in srgb, var(--panel-accent) 14%, var(--panel-border-strong, var(--border-strong)));
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .34), 0 3px 12px rgba(0, 0, 0, .14), inset 0 1px 0 color-mix(in srgb, var(--panel-accent) 12%, transparent);
+  color: var(--panel-text, var(--text));
+  font-family: var(--font);
+  font-size: 12.5px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  --panel-accent: var(--accent);
+  --panel-accent-soft: var(--accent-soft);
+  --panel-glow: rgba(31, 182, 214, 0.08);
+  --panel-border: var(--border);
+  --panel-border-strong: var(--border-strong);
+  --panel-text: var(--text);
+  --panel-text-muted: var(--text-3);
+  --panel-surface: var(--bg);
+  --panel-surface-strong: var(--bg-raised);
+  isolation: isolate;
+  transform-origin: center center;
+  animation: fp-glass-arrive 220ms cubic-bezier(.18, .84, .24, 1) both;
+  transition:
+    left 180ms cubic-bezier(.2, .8, .2, 1),
+    top 180ms cubic-bezier(.2, .8, .2, 1),
+    width 180ms cubic-bezier(.2, .8, .2, 1),
+    height 180ms cubic-bezier(.2, .8, .2, 1),
+    border-radius 180ms ease;
+  /* Size now controlled explicitly via inline width/height set by the
+   * FloatingPanel component (which persists user resizing). The hard
+   * viewport caps used to be here; the component clamps internally
+   * now so panels still can't escape the viewport. */
+}
+
+.fp.fp-interacting { transition: none; }
+.fp.fp-closing {
+  pointer-events: none;
+  animation: fp-glass-depart 180ms cubic-bezier(.4, 0, .8, .2) both;
+}
+
+@keyframes fp-glass-arrive {
+  from { opacity: 0; transform: translate3d(0, 8px, 0) scale(0.985); filter: saturate(0.82); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: saturate(1); }
+}
+@keyframes fp-glass-depart {
+  from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  to { opacity: 0; transform: translate3d(0, 5px, 0) scale(0.99); }
+}
+
+.fp::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 80% 45% at 50% -10%, var(--panel-glow), transparent 72%),
+    linear-gradient(var(--panel-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--panel-grid) 1px, transparent 1px);
+  background-size: 100% 100%, 36px 36px, 36px 36px;
+  opacity: 0.78;
+}
+
+/* Motifs are structural atmosphere, not alternate color themes. Every layer
+ * derives from the panel accent so user-selected primary/secondary colors
+ * continue to own the interface. */
+.fp[data-panel-motif="quiet-graphite"]::before {
+  background:
+    radial-gradient(ellipse 84% 48% at 52% -12%, var(--panel-glow), transparent 72%),
+    linear-gradient(112deg, transparent 0 42%, color-mix(in srgb, var(--panel-accent) 6%, transparent) 42.5% 43%, transparent 43.5% 100%),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--panel-accent) 3%, transparent) 0 1px, transparent 1px 28px);
+  background-size: 100% 100%, 100% 100%, 100% 28px;
+  opacity: .58;
+}
+
+.fp[data-panel-motif="waveform-timeline"]::before {
+  background:
+    radial-gradient(ellipse 76% 42% at 50% -8%, var(--panel-glow), transparent 72%),
+    repeating-linear-gradient(90deg, transparent 0 47px, color-mix(in srgb, var(--panel-accent) 8%, transparent) 47px 48px),
+    linear-gradient(180deg, transparent 0 32%, color-mix(in srgb, var(--panel-accent) 12%, transparent) 32.2% 32.6%, transparent 32.8% 66%, color-mix(in srgb, var(--panel-accent) 7%, transparent) 66.2% 66.5%, transparent 66.8% 100%);
+  background-size: 100% 100%, 48px 100%, 100% 100%;
+  opacity: .72;
+}
+
+.fp[data-panel-motif="process-stage"]::before {
+  background:
+    radial-gradient(circle at 15% 22%, color-mix(in srgb, var(--panel-accent) 16%, transparent) 0 3px, transparent 4px),
+    radial-gradient(circle at 50% 22%, color-mix(in srgb, var(--panel-accent) 13%, transparent) 0 3px, transparent 4px),
+    radial-gradient(circle at 85% 22%, color-mix(in srgb, var(--panel-accent) 10%, transparent) 0 3px, transparent 4px),
+    linear-gradient(90deg, transparent 15%, color-mix(in srgb, var(--panel-accent) 9%, transparent) 15% 85%, transparent 85%),
+    linear-gradient(180deg, var(--panel-glow), transparent 42%);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 1px, 100% 100%;
+  opacity: .68;
+}
+
+.fp[data-panel-motif="constellation"]::before {
+  background:
+    radial-gradient(circle at 13% 18%, color-mix(in srgb, var(--panel-accent) 26%, transparent) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 72% 27%, color-mix(in srgb, var(--panel-accent) 20%, transparent) 0 1px, transparent 2px),
+    radial-gradient(circle at 34% 73%, color-mix(in srgb, var(--panel-accent) 18%, transparent) 0 1.5px, transparent 2px),
+    linear-gradient(24deg, transparent 0 48%, color-mix(in srgb, var(--panel-accent) 6%, transparent) 48.2% 48.5%, transparent 48.7% 100%),
+    radial-gradient(ellipse 75% 50% at 50% -12%, var(--panel-glow), transparent 72%);
+  background-size: 137px 113px, 181px 157px, 211px 173px, 100% 100%, 100% 100%;
+  opacity: .82;
+}
+
+.fp[data-panel-motif="biomedical-topology"]::before {
+  background:
+    radial-gradient(circle at center, transparent 0 8px, color-mix(in srgb, var(--panel-accent) 8%, transparent) 8.5px 9.5px, transparent 10px 100%),
+    radial-gradient(circle at 20% 16%, color-mix(in srgb, var(--panel-accent) 15%, transparent) 0 2px, transparent 2.5px),
+    linear-gradient(135deg, transparent 0 49%, color-mix(in srgb, var(--panel-accent) 4%, transparent) 49.5% 50%, transparent 50.5% 100%),
+    radial-gradient(ellipse 82% 46% at 50% -10%, var(--panel-glow), transparent 72%);
+  background-size: 54px 54px, 93px 79px, 54px 54px, 100% 100%;
+  opacity: .72;
+}
+
+.fp[data-panel-motif="head-worker"]::before {
+  background:
+    radial-gradient(circle at 50% 14%, color-mix(in srgb, var(--panel-accent) 24%, transparent) 0 4px, transparent 4.5px),
+    radial-gradient(circle at 22% 55%, color-mix(in srgb, var(--panel-accent) 14%, transparent) 0 3px, transparent 3.5px),
+    radial-gradient(circle at 78% 55%, color-mix(in srgb, var(--panel-accent) 14%, transparent) 0 3px, transparent 3.5px),
+    linear-gradient(64deg, transparent 0 49.5%, color-mix(in srgb, var(--panel-accent) 7%, transparent) 49.7% 50%, transparent 50.2% 100%),
+    linear-gradient(-64deg, transparent 0 49.5%, color-mix(in srgb, var(--panel-accent) 7%, transparent) 49.7% 50%, transparent 50.2% 100%),
+    radial-gradient(ellipse 76% 46% at 50% -12%, var(--panel-glow), transparent 72%);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  opacity: .7;
+}
+
+.fp[data-panel-motif="mission-control"]::before {
+  background:
+    repeating-radial-gradient(circle at 82% 18%, transparent 0 20px, color-mix(in srgb, var(--panel-accent) 7%, transparent) 20.5px 21px, transparent 21.5px 40px),
+    linear-gradient(90deg, transparent 81.8%, color-mix(in srgb, var(--panel-accent) 9%, transparent) 82% 82.2%, transparent 82.4%),
+    linear-gradient(180deg, transparent 17.8%, color-mix(in srgb, var(--panel-accent) 9%, transparent) 18% 18.2%, transparent 18.4%),
+    radial-gradient(ellipse 82% 44% at 50% -10%, var(--panel-glow), transparent 72%);
+  background-size: 100% 100%;
+  opacity: .72;
+}
+
+.fp[data-panel-motif="living-grove"]::before {
+  background:
+    radial-gradient(ellipse 42% 24% at 18% 78%, color-mix(in srgb, var(--panel-accent) 10%, transparent), transparent 72%),
+    radial-gradient(ellipse 36% 28% at 78% 42%, color-mix(in srgb, var(--panel-accent) 8%, transparent), transparent 74%),
+    linear-gradient(74deg, transparent 0 45%, color-mix(in srgb, var(--panel-accent) 6%, transparent) 45.3% 45.7%, transparent 46% 100%),
+    linear-gradient(106deg, transparent 0 62%, color-mix(in srgb, var(--panel-accent) 5%, transparent) 62.3% 62.7%, transparent 63% 100%),
+    radial-gradient(ellipse 80% 46% at 50% -12%, var(--panel-glow), transparent 72%);
+  background-size: 100% 100%;
+  opacity: .68;
+}
+
+/* Capability accents. Unknown/future panels simply keep the neutral shell. */
+.fp-activity { --panel-accent: var(--signal); --panel-accent-soft: var(--signal-soft); --panel-glow: rgba(215, 163, 61, 0.10); }
+.fp-learning { --panel-accent: var(--violet); --panel-accent-soft: var(--violet-soft); --panel-glow: rgba(167, 139, 250, 0.11); }
+.fp-memory { --panel-accent: var(--mint); --panel-accent-soft: var(--mint-soft); --panel-glow: rgba(116, 215, 177, 0.09); }
+.fp-status { --panel-accent: var(--phosphor); --panel-accent-soft: var(--phosphor-soft); --panel-glow: rgba(143, 224, 157, 0.09); }
+.fp-models { --panel-accent: var(--magenta); --panel-accent-soft: var(--magenta-soft); --panel-glow: rgba(216, 121, 187, 0.10); }
+.fp-spine-projects, .fp-engineering { --panel-accent: var(--copper); --panel-accent-soft: var(--copper-soft); --panel-glow: rgba(199, 134, 85, 0.10); }
+.fp-git-dashboard { --panel-accent: var(--dash-git); --panel-accent-soft: var(--dash-git-soft); --panel-glow: rgba(158, 182, 138, 0.11); }
+.fp-automations { --panel-accent: var(--mint); --panel-accent-soft: var(--mint-soft); --panel-glow: rgba(116, 215, 177, 0.08); }
+.fp-map { --panel-accent: var(--coral); --panel-accent-soft: var(--coral-soft); --panel-glow: rgba(240, 138, 126, 0.08); }
+.fp-chat { --panel-accent: var(--champagne); --panel-accent-soft: var(--champagne-soft); --panel-glow: rgba(215, 193, 140, 0.06); }
+
+/* Resize handles — invisible hit zones around the panel edges that
+ * the user can grab to resize. The SE handle has a small visible
+ * affordance (grip icon) so users can find it; the edge handles are
+ * intentionally invisible because the cursor:resize change is the
+ * affordance there. */
+.fp-resize-e {
+  position: absolute;
+  top: 6px;
+  right: 0;
+  bottom: 12px;
+  width: 10px;
+  cursor: ew-resize;
+  z-index: 120; /* above ALL panel content (chat input bar is z-20, livemode z-90) */
+  touch-action: none;
+}
+.fp-resize-s {
+  position: absolute;
+  left: 6px;
+  right: 12px;
+  bottom: 0;
+  height: 10px;
+  cursor: ns-resize;
+  z-index: 120;
+  touch-action: none;
+}
+.fp-resize-se {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  z-index: 121;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  color: var(--text-4);
+  opacity: 0.7;
+  touch-action: none;
+}
+.fp-resize-se i { font-size: 9px; transform: rotate(45deg); }
+
+.fp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  border-bottom: 1px solid color-mix(in srgb, var(--panel-accent) 14%, var(--panel-border));
+  cursor: move;
+  user-select: none;
+  flex-shrink: 0;
+  position: relative;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--panel-accent) 13%, var(--panel-surface-strong)) 0%, var(--panel-surface-strong) 58%, color-mix(in srgb, var(--panel-accent) 5%, var(--panel-surface-strong)) 100%);
+  transition: background 180ms ease, border-color 180ms ease;
+}
+
+.fp-head:focus-within {
+  border-bottom-color: color-mix(in srgb, var(--panel-accent) 36%, var(--border));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--panel-accent-soft) 86%, transparent), transparent 44%);
+}
+
+.fp-head::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--panel-accent), transparent 38%);
+  opacity: 0.48;
+}
+
+.fp-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.fp-title i {
+  color: var(--panel-accent);
+  font-size: 15px;
+}
+
+.fp-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fp-close,
+.fp-reset {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm, 4px);
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 4px;
+  min-width: 24px;
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease, transform 100ms ease;
+}
+
+.fp-close i,
+.fp-reset i { font-size: 14px; }
+.fp-close:focus-visible,
+.fp-reset:focus-visible {
+  color: var(--panel-accent);
+  border-color: var(--panel-accent-soft);
+  outline: none;
+  background: color-mix(in srgb, var(--panel-accent-soft) 62%, transparent);
+}
+.fp-close:active,
+.fp-reset:active { transform: scale(0.9); }
+
+.fp-reset {
+  color: var(--panel-accent);
+}
+
+.fp-reset:focus-visible {
+  box-shadow: 0 0 0 2px var(--panel-glow);
+}
+
+.fp-body {
+  flex: 1;
+  overflow-y: auto;
+  /* `overflow-y: auto` otherwise computes the other axis to `auto` too.
+   * Wide dashboard children then turn the entire window body into a hidden
+   * horizontal scroller, so a diagonal phone gesture appears to slide the
+   * dashboard off-screen. Horizontal rails opt in on their own descendants. */
+  overflow-x: hidden;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Section utilities used inside many panels */
+.fp-section {
+  padding: 12px 14px;
+  border-bottom: 0.5px solid var(--border);
+}
+.fp-section:last-child { border-bottom: none; }
+
+.fp-sec-label {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fp-sec-link {
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  font-size: 9px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-family: inherit;
+  padding: 0;
+}
+.fp-sec-link:focus-visible { color: var(--panel-accent); }
+.fp-sec-link i { font-size: 10px; opacity: 0.7; }
+
+.fp-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 12px;
+}
+
+.fp-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.fp-dot.green { background: var(--green); animation: fp-pulse 1.5s ease-in-out infinite; }
+.fp-dot.amber { background: var(--amber); }
+.fp-dot.red { background: var(--red); }
+.fp-dot.gray { background: var(--text-faint); }
+
+@keyframes fp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.fp-row-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.fp-row-time {
+  color: var(--text-3);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.fp-pill {
+  padding: 1px 7px;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 500;
+  flex-shrink: 0;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.fp-pill.green { background: var(--green-soft); color: var(--green-text); }
+.fp-pill.amber { background: var(--amber-soft); color: var(--amber-text-on-soft); }
+.fp-pill.red { background: var(--red-soft); color: var(--red-text); }
+.fp-pill.muted {
+  background: var(--bg-raised);
+  color: var(--text-2);
+}
+.fp-pill.purple { background: var(--purple-soft); color: var(--purple); }
+
+/* "Text action" — link-style button used in pending decisions, etc. */
+.fp-textaction {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 11px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.fp-textaction:focus-visible { color: var(--accent-text); }
+.fp-textaction.primary { color: var(--green); }
+.fp-textaction.primary:focus-visible { color: var(--green-text); }
+.fp-textaction.danger { color: var(--red); }
+.fp-textaction.danger:focus-visible { color: var(--red-text); }
+.fp-textaction.muted { color: var(--text-3); }
+.fp-textaction.muted:focus-visible { color: var(--text-2); }
+.fp-textaction i { font-size: 11px; }
+
+@media (hover: hover) and (pointer: fine) {
+  .fp-resize-se:hover { opacity: 1; color: var(--text-2); }
+  .fp-head:hover {
+    border-bottom-color: color-mix(in srgb, var(--panel-accent) 36%, var(--border));
+    background: linear-gradient(90deg, color-mix(in srgb, var(--panel-accent-soft) 86%, transparent), transparent 44%);
+  }
+  .fp-close:hover,
+  .fp-reset:hover {
+    color: var(--panel-accent);
+    border-color: var(--panel-accent-soft);
+    background: color-mix(in srgb, var(--panel-accent-soft) 62%, transparent);
+  }
+  .fp-sec-link:hover { color: var(--panel-accent); }
+  .fp-textaction:hover { color: var(--accent-text); }
+  .fp-textaction.primary:hover { color: var(--green-text); }
+  .fp-textaction.danger:hover { color: var(--red-text); }
+  .fp-textaction.muted:hover { color: var(--text-2); }
+}
+
+/* ── Maximized window ────────────────────────────────────────────── */
+/* Fills the workspace BELOW the topbar with a small inset — it reads
+   as a maximized window (chrome retained, still clearly a window),
+   not a fullscreen takeover. */
+.fp.fp-maximized {
+  left: 8px !important;
+  right: 8px !important;
+  top: calc(50px + env(safe-area-inset-top, 0px)) !important;
+  bottom: 8px !important;
+  width: auto !important;
+  height: auto !important;
+  z-index: 3000; /* above sibling windows, below modals */
+}
+.fp.fp-maximized .fp-head { cursor: default; }
+
+/* ── All-edge resize handles ─────────────────────────────────────── */
+/* Handles sit INSIDE the panel edge — a window docked flush against
+   the screen border must remain resizable (outside-hanging handles
+   were getting clipped at the viewport, which made flush-docked
+   windows — like the snapped chat — impossible to resize). */
+.fp-resize-w, .fp-resize-n, .fp-resize-ne, .fp-resize-nw, .fp-resize-sw {
+  position: absolute;
+  z-index: 120;
+  touch-action: none;
+}
+.fp-resize-w { left: 0; top: 12px; bottom: 12px; width: 10px; cursor: ew-resize; }
+.fp-resize-n { top: 0; left: 12px; right: 12px; height: 10px; cursor: ns-resize; }
+.fp-resize-ne { top: 0; right: 0; width: 16px; height: 16px; cursor: nesw-resize; z-index: 121; }
+.fp-resize-nw { top: 0; left: 0; width: 16px; height: 16px; cursor: nwse-resize; z-index: 121; }
+.fp-resize-sw { bottom: 0; left: 0; width: 16px; height: 16px; cursor: nesw-resize; z-index: 121; }
+
+/* ── Small screens (phone / narrow iPad) ─────────────────────────── */
+/* Floating geometry makes no sense on a phone: every window renders
+   maximized (full workspace below the topbar), keeping all features —
+   close button, header actions, Esc — while dropping drag/resize. */
+@media (max-width: 760px) {
+  .fp {
+    left: 0 !important;
+    right: 0 !important;
+    top: calc(44px + env(safe-area-inset-top, 0px)) !important;
+    bottom: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    border-radius: 14px 14px 0 0;
+    z-index: 2500;
+  }
+  .fp-resize-e, .fp-resize-s, .fp-resize-se, .fp-resize-w, .fp-resize-n,
+  .fp-resize-ne, .fp-resize-nw, .fp-resize-sw { display: none; }
+  .fp-head { cursor: default; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp { animation: none !important; }
+  .fp.fp-closing { opacity: 0; }
+  .fp-head,
+  .fp-close,
+  .fp-reset,
+  .fp { transition: none !important; }
+}

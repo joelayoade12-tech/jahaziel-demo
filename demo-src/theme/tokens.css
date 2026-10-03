@@ -1,0 +1,237 @@
+/* ───────────────────────────────────────────────────────────
+   Theme tokens — single source of truth for both modes.
+   Dark is default; the .light variant overrides via [data-theme="light"].
+   Every color in the app reads from these vars; no hex literals
+   should live in component CSS except for one-off illustrations.
+─────────────────────────────────────────────────────────── */
+
+:root {
+  /* surfaces (dark default) */
+  --bg-deep: #0d0d0e;
+  --bg: #1a1a1c;
+  --bg-raised: #27272a;
+  --bg-hover: #2e2e32;
+
+  /* borders */
+  --border: rgba(255, 255, 255, 0.05);
+  --border-strong: #3f3f46;
+  --border-hover: rgba(255, 255, 255, 0.1);
+
+  /* text */
+  --text: #e4e4e7;
+  --text-2: #a1a1aa;
+  --text-3: #71717a;
+  --text-faint: #52525b;
+
+  /* semantic accents */
+  --green: #22c55e;
+  --green-soft: rgba(34, 197, 94, 0.14);
+  --green-text: #86efac;
+
+  --amber: #fbbf24;
+  --amber-soft: rgba(251, 191, 36, 0.14);
+  --amber-text: #fbbf24;
+  --amber-text-on-soft: #fbbf24;
+
+  --red: #ef4444;
+  --red-soft: rgba(239, 68, 68, 0.14);
+  --red-text: #f09595;
+
+  --accent: #1fb6d6;
+  --accent-soft: rgba(31, 182, 214, 0.14);
+  --accent-text: #7fd6e8;
+  --accent-strong: #1593b0;
+  --ai-accent: #56e3ff;
+  --ai-accent-text: #8cecff;
+  --ai-accent-soft: rgba(86, 227, 255, 0.16);
+  --ai-accent-glow: rgba(86, 227, 255, 0.42);
+  --ai-idle: #56e3ff;
+  --ai-thinking: #7c9cff;
+  --ai-speaking: #5eead4;
+  --ai-attention: #f6c453;
+  --ai-error: #ef4444;
+  --ai-ring-one: #56e3ff;
+  --ai-ring-two: #a78bfa;
+  --ai-ring-three: #5eead4;
+
+  --purple: #c4b5fd;
+  --purple-soft: rgba(168, 85, 247, 0.12);
+
+  /* instrument palette -------------------------------------------------
+     The shell stays graphite/cyan, while individual capabilities branch
+     from these restrained accents. Panels opt in through --panel-accent;
+     a capability that is not mounted leaves no styling gap behind. */
+  --mint: #74d7b1;
+  --mint-soft: rgba(116, 215, 177, 0.12);
+  --violet: #a78bfa;
+  --violet-soft: rgba(167, 139, 250, 0.13);
+  --coral: #f08a7e;
+  --coral-soft: rgba(240, 138, 126, 0.12);
+  --signal: #d7a33d;
+  --signal-soft: rgba(215, 163, 61, 0.12);
+  --copper: #c78655;
+  --copper-soft: rgba(199, 134, 85, 0.13);
+  --sage: #9eb68a;
+  --sage-soft: rgba(158, 182, 138, 0.12);
+  --magenta: #d879bb;
+  --magenta-soft: rgba(216, 121, 187, 0.12);
+  --champagne: #d7c18c;
+  --champagne-soft: rgba(215, 193, 140, 0.12);
+  --phosphor: #8fe09d;
+  --phosphor-soft: rgba(143, 224, 157, 0.12);
+
+  /* shared panel instrumentation. Each FloatingPanel overrides these
+     from its panel id, so future panels inherit a complete neutral theme
+     even before they define a dedicated personality. */
+  --panel-accent: var(--accent);
+  --panel-accent-soft: var(--accent-soft);
+  --panel-grid: rgba(255, 255, 255, 0.018);
+  --panel-glow: rgba(31, 182, 214, 0.08);
+  --panel-surface: rgba(16, 17, 19, 0.82);
+  --panel-surface-strong: rgba(22, 23, 26, 0.94);
+
+  /* ── Dashboard identity accents ──────────────────────────────
+     Each dashboard gets a scoped accent pair so its panels, headers,
+     and atmospheric backgrounds carry a unique future-tech identity. */
+  --dash-chat: var(--ai-accent);
+  --dash-chat-soft: var(--ai-accent-soft);
+  --dash-activity: var(--signal);
+  --dash-activity-soft: var(--signal-soft);
+  --dash-adaptation: var(--violet);
+  --dash-adaptation-soft: var(--violet-soft);
+  --dash-adaptation-secondary: var(--coral);
+  --dash-memory: var(--mint);
+  --dash-memory-soft: var(--mint-soft);
+  --dash-memory-secondary: var(--violet);
+  --dash-status: var(--phosphor);
+  --dash-status-soft: var(--phosphor-soft);
+  --dash-models: var(--purple);
+  --dash-models-soft: var(--purple-soft);
+  --dash-models-secondary: var(--signal);
+  --dash-projects: var(--copper);
+  --dash-projects-soft: var(--copper-soft);
+  --dash-projects-secondary: var(--sage);
+  --dash-git: var(--sage);
+  --dash-git-soft: var(--sage-soft);
+  --dash-git-secondary: var(--champagne);
+
+  /* Atmospheric backgrounds per dashboard */
+  --atmosphere-chat: radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in srgb, var(--ai-accent) 4%, transparent), transparent 70%);
+  --atmosphere-activity: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(215, 163, 61, 0.05), transparent 72%);
+  --atmosphere-adaptation: radial-gradient(ellipse 85% 55% at 30% 0%, rgba(167, 139, 250, 0.06), transparent 70%), radial-gradient(ellipse 70% 50% at 80% 100%, rgba(240, 138, 126, 0.04), transparent 72%);
+  --atmosphere-memory: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(116, 215, 177, 0.04), transparent 70%), radial-gradient(ellipse 60% 40% at 70% 80%, rgba(167, 139, 250, 0.03), transparent 68%);
+  --atmosphere-status: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(143, 224, 157, 0.03), transparent 70%);
+  --atmosphere-models: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(196, 181, 253, 0.04), transparent 70%);
+  --atmosphere-projects: radial-gradient(ellipse 85% 55% at 40% 0%, rgba(199, 134, 85, 0.05), transparent 70%), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(158, 182, 138, 0.03), transparent 68%);
+  --atmosphere-git: radial-gradient(ellipse 70% 90% at 50% 100%, rgba(158, 182, 138, 0.075), transparent 72%), radial-gradient(ellipse 90% 40% at 50% 0%, rgba(215, 193, 140, 0.035), transparent 70%);
+
+  /* Glow utilities for node graphs and connectors */
+  --glow-sm: 0 0 8px color-mix(in srgb, var(--panel-accent) 30%, transparent);
+  --glow-md: 0 0 16px color-mix(in srgb, var(--panel-accent) 35%, transparent);
+  --glow-lg: 0 0 28px color-mix(in srgb, var(--panel-accent) 22%, transparent);
+
+  /* user-message bubble (slightly elevated surface) */
+  --user-bubble-bg: #2e2e36;
+  --user-bubble-border: rgba(255, 255, 255, 0.06);
+
+  /* code blocks */
+  --code-bg: #0d0d0e;
+  --code-header-bg: #27272a;
+
+  /* chat canvas — layered intelligence surface */
+  --chat-canvas-bg: var(--bg-deep);
+  --chat-grid-color: rgba(255, 255, 255, 0.015);
+  --chat-grid-size: 32px;
+  --chat-atmosphere: radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in srgb, var(--ai-accent) 4%, transparent), transparent 70%);
+  --chat-dock-bg: linear-gradient(to bottom, rgba(26, 26, 28, 0.92), rgba(13, 13, 14, 0.96));
+  --chat-dock-border: rgba(255, 255, 255, 0.06);
+  --chat-dock-focus-shadow: 0 0 0 1px var(--ai-accent), 0 0 12px var(--ai-accent-soft);
+
+  /* type / spacing */
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "SF Mono", "Cascadia Code", "Fira Code", Consolas, monospace;
+  --r: 8px;
+  --r-sm: 5px;
+  --r-lg: 12px;
+
+  /* shadows used sparingly — only on floating panels */
+  --shadow-panel: 0 12px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="light"] {
+  --bg-deep: #f4f4f5;
+  --bg: #fafafa;
+  --bg-raised: #ffffff;
+  --bg-hover: #f4f4f5;
+
+  --border: rgba(0, 0, 0, 0.06);
+  --border-strong: #e4e4e7;
+  --border-hover: rgba(0, 0, 0, 0.1);
+
+  --text: #1a1a1c;
+  --text-2: #52525b;
+  --text-3: #71717a;
+  --text-faint: #a1a1aa;
+
+  --green: #16a34a;
+  --green-soft: rgba(22, 163, 74, 0.1);
+  --green-text: #15803d;
+
+  --amber: #f59e0b;
+  --amber-soft: rgba(245, 158, 11, 0.12);
+  --amber-text: #f59e0b;
+  --amber-text-on-soft: #b45309;
+
+  --red: #dc2626;
+  --red-soft: rgba(220, 38, 38, 0.1);
+  --red-text: #b91c1c;
+
+  --accent: #0e8aa8;
+  --accent-soft: rgba(14, 138, 168, 0.10);
+  --accent-text: #0a6f87;
+  --accent-strong: #0a6f87;
+
+  --purple: #7c3aed;
+  --purple-soft: rgba(124, 58, 237, 0.1);
+
+  --mint: #268a67;
+  --mint-soft: rgba(38, 138, 103, 0.10);
+  --violet: #7957c7;
+  --violet-soft: rgba(121, 87, 199, 0.10);
+  --coral: #bd5d55;
+  --coral-soft: rgba(189, 93, 85, 0.10);
+  --signal: #9a6b13;
+  --signal-soft: rgba(154, 107, 19, 0.10);
+  --copper: #995c33;
+  --copper-soft: rgba(153, 92, 51, 0.10);
+  --sage: #5f7951;
+  --sage-soft: rgba(95, 121, 81, 0.10);
+  --magenta: #a34387;
+  --magenta-soft: rgba(163, 67, 135, 0.10);
+  --champagne: #8b7138;
+  --champagne-soft: rgba(139, 113, 56, 0.10);
+  --phosphor: #2d8843;
+  --phosphor-soft: rgba(45, 136, 67, 0.10);
+
+  --panel-grid: rgba(0, 0, 0, 0.025);
+  --panel-glow: rgba(14, 138, 168, 0.06);
+  --panel-surface: rgba(255, 255, 255, 0.78);
+  --panel-surface-strong: rgba(255, 255, 255, 0.94);
+
+  --user-bubble-bg: #e4e4e7;
+  --user-bubble-border: rgba(0, 0, 0, 0.04);
+
+  --code-bg: #f4f4f5;
+  --code-header-bg: #e4e4e7;
+
+  /* chat canvas — layered intelligence surface (light) */
+  --chat-canvas-bg: var(--bg-deep);
+  --chat-grid-color: rgba(0, 0, 0, 0.02);
+  --chat-grid-size: 32px;
+  --chat-atmosphere: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(14, 138, 168, 0.03), transparent 70%);
+  --chat-dock-bg: linear-gradient(to bottom, rgba(250, 250, 250, 0.92), rgba(244, 244, 245, 0.96));
+  --chat-dock-border: rgba(0, 0, 0, 0.06);
+  --chat-dock-focus-shadow: 0 0 0 1px var(--accent), 0 0 12px rgba(14, 138, 168, 0.06);
+
+  --shadow-panel: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+}

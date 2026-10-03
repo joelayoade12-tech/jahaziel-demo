@@ -1,0 +1,379 @@
+/*
+ * Semantic artwork layered behind the Phosphor symbol. AppIcon already emits
+ * data-app-icon everywhere (library, desktop, both docks and drag previews), so
+ * one motif follows an app through every presentation without duplicating UI.
+ */
+.desktop-app-icon-mask::before,
+.desktop-app-icon-mask::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.desktop-app-icon-mask::before {
+  z-index: 0;
+  inset: 12%;
+  border: 1px solid color-mix(in srgb, white 24%, var(--app-accent));
+  opacity: 0.42;
+}
+
+.desktop-app-icon-mask::after {
+  z-index: 1;
+  inset: 0;
+  opacity: 0.48;
+}
+
+.desktop-app-icon-mask > .desktop-app-icon-sheen { z-index: 2; }
+.desktop-app-icon .desktop-app-icon-mask > i { z-index: 3; }
+
+/* Unknown trusted apps still get a recognizable generated motif. Their stable
+ * ID-derived palette and shape select one of four different constructions. */
+.desktop-app-icon--circle .desktop-app-icon-mask::before {
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--app-secondary) 32%, transparent);
+}
+.desktop-app-icon--circle .desktop-app-icon-mask::after {
+  background: conic-gradient(from 25deg, transparent 0 25%, rgba(255,255,255,.18) 25% 31%, transparent 31% 72%, rgba(255,255,255,.13) 72% 77%, transparent 77%);
+}
+.desktop-app-icon--rounded .desktop-app-icon-mask::before {
+  border-radius: 8px;
+  background: repeating-linear-gradient(135deg, transparent 0 5px, rgba(255,255,255,.1) 5px 6px);
+}
+.desktop-app-icon--squircle .desktop-app-icon-mask::before {
+  border-radius: 35%;
+  background: radial-gradient(circle at 28% 30%, rgba(255,255,255,.28) 0 2px, transparent 2.5px), radial-gradient(circle at 72% 68%, rgba(255,255,255,.2) 0 2px, transparent 2.5px);
+}
+.desktop-app-icon--tile .desktop-app-icon-mask::before {
+  border-radius: 4px 10px 4px 10px;
+  background: linear-gradient(90deg, transparent 47%, rgba(255,255,255,.17) 48% 52%, transparent 53%), linear-gradient(transparent 47%, rgba(255,255,255,.17) 48% 52%, transparent 53%);
+}
+
+/* Chat — a quiet conversation card and message lines. */
+[data-app-icon="chat"] .desktop-app-icon-mask::before {
+  inset: 17% 13% 23%;
+  border: 1.5px solid rgba(255,255,255,.58);
+  border-radius: 42% 42% 42% 15%;
+  background: linear-gradient(180deg, rgba(255,255,255,.12), transparent);
+  box-shadow: none;
+}
+[data-app-icon="chat"] .desktop-app-icon-mask::after {
+  inset: 35% 25% auto;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255,255,255,.48);
+  box-shadow: 0 6px rgba(255,255,255,.3);
+}
+
+/* Voice — a real waveform silhouette rather than another chat tile. */
+[data-app-icon="voice-chat"] .desktop-app-icon-mask::before {
+  inset: 17% 14%;
+  border: 0;
+  border-radius: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 3px, rgba(255,255,255,.6) 3px 5px, transparent 5px 8px);
+  clip-path: polygon(0 43%, 12% 43%, 12% 26%, 25% 26%, 25% 6%, 39% 6%, 39% 34%, 52% 34%, 52% 17%, 66% 17%, 66% 42%, 79% 42%, 79% 29%, 91% 29%, 91% 43%, 100% 43%, 100% 57%, 91% 57%, 91% 71%, 79% 71%, 79% 58%, 66% 58%, 66% 83%, 52% 83%, 52% 66%, 39% 66%, 39% 94%, 25% 94%, 25% 74%, 12% 74%, 12% 57%, 0 57%);
+  opacity: .45;
+  box-shadow: none;
+}
+[data-app-icon="voice-chat"] .desktop-app-icon-mask::after {
+  inset: 48% 10% auto;
+  height: 1px;
+  background: rgba(255,255,255,.25);
+}
+
+/* Lens — aperture blades, focus reticle and optical center. */
+[data-app-icon="lens"] .desktop-app-icon-mask::before {
+  inset: 12%;
+  border: 1px solid rgba(255,255,255,.5);
+  border-radius: 50%;
+  background: conic-gradient(from 15deg, transparent 0 9%, rgba(255,255,255,.22) 9% 16%, transparent 16% 25%, rgba(255,255,255,.22) 25% 32%, transparent 32% 42%, rgba(255,255,255,.22) 42% 49%, transparent 49% 59%, rgba(255,255,255,.22) 59% 66%, transparent 66% 76%, rgba(255,255,255,.22) 76% 83%, transparent 83% 92%, rgba(255,255,255,.22) 92% 100%);
+  box-shadow: inset 0 0 0 5px color-mix(in srgb, var(--app-secondary) 30%, transparent);
+}
+[data-app-icon="lens"] .desktop-app-icon-mask::after {
+  inset: 35%;
+  border: 1px solid rgba(255,255,255,.56);
+  border-radius: 50%;
+  box-shadow: 0 -16px 0 -5px rgba(255,255,255,.45), 0 16px 0 -5px rgba(255,255,255,.45), 16px 0 0 -5px rgba(255,255,255,.45), -16px 0 0 -5px rgba(255,255,255,.45);
+}
+
+/* Alerts — ringing halo with an illuminated strike point. */
+[data-app-icon="notifications"] .desktop-app-icon-mask::before {
+  inset: 11%;
+  border: 2px solid rgba(255,255,255,.35);
+  border-color: rgba(255,255,255,.52) transparent rgba(255,255,255,.25);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 5px color-mix(in srgb, var(--app-secondary) 23%, transparent);
+}
+[data-app-icon="notifications"] .desktop-app-icon-mask::after {
+  inset: 9%;
+  border-top: 2px solid rgba(255,255,255,.38);
+  border-radius: 50%;
+  transform: rotate(-28deg);
+}
+
+/* Automations — connected trigger nodes orbiting a workflow track. */
+[data-app-icon="automations"] .desktop-app-icon-mask::before {
+  inset: 12%;
+  border: 1px dashed rgba(255,255,255,.46);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 4%, white 0 2px, transparent 2.5px), radial-gradient(circle at 96% 60%, white 0 2px, transparent 2.5px), radial-gradient(circle at 18% 86%, white 0 2px, transparent 2.5px);
+  box-shadow: none;
+}
+[data-app-icon="automations"] .desktop-app-icon-mask::after {
+  inset: 24%;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 50%;
+  background: conic-gradient(from 40deg, transparent 0 29%, rgba(255,255,255,.22) 29% 34%, transparent 34% 63%, rgba(255,255,255,.22) 63% 68%, transparent 68%);
+}
+
+/* Activity — instrument grid with an ECG trace. */
+[data-app-icon="activity"] .desktop-app-icon-mask::before {
+  inset: 8%;
+  border: 0;
+  border-radius: 6px;
+  background: repeating-linear-gradient(0deg, transparent 0 7px, rgba(255,255,255,.09) 7px 8px), repeating-linear-gradient(90deg, transparent 0 7px, rgba(255,255,255,.09) 7px 8px);
+  box-shadow: none;
+}
+[data-app-icon="activity"] .desktop-app-icon-mask::after {
+  inset: 28% 8%;
+  border: 0;
+  background: rgba(255,255,255,.48);
+  clip-path: polygon(0 51%, 18% 51%, 27% 34%, 38% 74%, 50% 7%, 62% 59%, 72% 43%, 82% 51%, 100% 51%, 100% 56%, 80% 56%, 73% 49%, 60% 67%, 51% 24%, 39% 92%, 25% 46%, 20% 56%, 0 56%);
+}
+
+/* Map — offset topographic contours. */
+[data-app-icon="map"] .desktop-app-icon-mask::before {
+  inset: 6%;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 48% 42% 55% 38%;
+  box-shadow: inset 0 0 0 5px transparent, 2px -1px 0 4px rgba(255,255,255,.12), -3px 3px 0 8px rgba(255,255,255,.1);
+  transform: rotate(-13deg);
+}
+[data-app-icon="map"] .desktop-app-icon-mask::after {
+  inset: 25%;
+  border: 1px dashed rgba(255,255,255,.4);
+  border-radius: 58% 42% 47% 53%;
+  transform: rotate(28deg);
+}
+
+/* JCode — terminal glass, prompt and source rows. */
+[data-app-icon="jcode"] .desktop-app-icon-mask::before {
+  inset: 11% 9%;
+  border: 1px solid rgba(255,255,255,.42);
+  border-radius: 5px;
+  background: linear-gradient(180deg, rgba(255,255,255,.2) 0 18%, transparent 18%), repeating-linear-gradient(180deg, transparent 0 7px, rgba(255,255,255,.12) 7px 8px);
+  box-shadow: none;
+}
+[data-app-icon="jcode"] .desktop-app-icon-mask::after {
+  content: "›_";
+  inset: auto auto 15% 17%;
+  color: rgba(255,255,255,.6);
+  font: 700 9px/1 ui-monospace, monospace;
+  letter-spacing: -1px;
+}
+
+/* Projects — a small constellation held in one orbital workspace. */
+[data-app-icon="spine-projects"] .desktop-app-icon-mask::before {
+  inset: 13% 8%;
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 50%;
+  transform: rotate(-22deg);
+  box-shadow: none;
+}
+[data-app-icon="spine-projects"] .desktop-app-icon-mask::after {
+  inset: 8%;
+  background: radial-gradient(circle at 20% 62%, white 0 2px, transparent 2.5px), radial-gradient(circle at 55% 20%, white 0 2px, transparent 2.5px), radial-gradient(circle at 80% 72%, white 0 2px, transparent 2.5px), linear-gradient(37deg, transparent 45%, rgba(255,255,255,.24) 46% 49%, transparent 50%);
+}
+
+/* Engineering — blueprint grid and construction compass. */
+[data-app-icon="engineering"] .desktop-app-icon-mask::before {
+  inset: 5%;
+  border: 0;
+  border-radius: 0;
+  background: repeating-linear-gradient(0deg, transparent 0 6px, rgba(255,255,255,.1) 6px 7px), repeating-linear-gradient(90deg, transparent 0 6px, rgba(255,255,255,.1) 6px 7px);
+  box-shadow: none;
+}
+[data-app-icon="engineering"] .desktop-app-icon-mask::after {
+  inset: 18%;
+  border: 1px dashed rgba(255,255,255,.43);
+  border-radius: 50%;
+  background: linear-gradient(62deg, transparent 48%, rgba(255,255,255,.32) 49% 51%, transparent 52%), linear-gradient(-62deg, transparent 48%, rgba(255,255,255,.24) 49% 51%, transparent 52%);
+}
+
+/* Files — staggered paper stack with a folder tab. */
+[data-app-icon="files"] .desktop-app-icon-mask::before {
+  inset: 20% 14% 13% 22%;
+  border: 1px solid rgba(255,255,255,.45);
+  border-radius: 3px;
+  background: repeating-linear-gradient(180deg, transparent 0 6px, rgba(255,255,255,.18) 6px 7px);
+  box-shadow: -4px 4px 0 -1px color-mix(in srgb, white 18%, var(--app-secondary));
+}
+[data-app-icon="files"] .desktop-app-icon-mask::after {
+  inset: 13% auto auto 18%;
+  width: 16px;
+  height: 6px;
+  border-radius: 3px 3px 0 0;
+  background: rgba(255,255,255,.34);
+}
+
+/* Memory — neural nodes with crossing synapses. */
+[data-app-icon="memory"] .desktop-app-icon-mask::before {
+  inset: 9%;
+  border: 0;
+  border-radius: 0;
+  background: radial-gradient(circle at 16% 48%, white 0 2px, transparent 2.5px), radial-gradient(circle at 45% 18%, white 0 2px, transparent 2.5px), radial-gradient(circle at 76% 35%, white 0 2px, transparent 2.5px), radial-gradient(circle at 66% 79%, white 0 2px, transparent 2.5px), radial-gradient(circle at 28% 76%, white 0 2px, transparent 2.5px);
+  box-shadow: none;
+}
+[data-app-icon="memory"] .desktop-app-icon-mask::after {
+  inset: 13%;
+  background: linear-gradient(42deg, transparent 47%, rgba(255,255,255,.22) 48% 51%, transparent 52%), linear-gradient(-55deg, transparent 47%, rgba(255,255,255,.18) 48% 51%, transparent 52%);
+}
+
+/* Models — silicon die with pins and circuit traces. */
+[data-app-icon="models"] .desktop-app-icon-mask::before {
+  inset: 20%;
+  border: 1px solid rgba(255,255,255,.48);
+  border-radius: 4px;
+  background: linear-gradient(45deg, transparent 42%, rgba(255,255,255,.16) 43% 57%, transparent 58%);
+  box-shadow: 0 -10px 0 -8px white, 0 10px 0 -8px white, -10px 0 0 -8px white, 10px 0 0 -8px white;
+}
+[data-app-icon="models"] .desktop-app-icon-mask::after {
+  inset: 7%;
+  background: repeating-linear-gradient(90deg, transparent 0 8px, rgba(255,255,255,.24) 8px 9px, transparent 9px 12px), repeating-linear-gradient(0deg, transparent 0 8px, rgba(255,255,255,.18) 8px 9px, transparent 9px 12px);
+  clip-path: polygon(0 42%, 28% 42%, 28% 0, 72% 0, 72% 42%, 100% 42%, 100% 58%, 72% 58%, 72% 100%, 28% 100%, 28% 58%, 0 58%);
+}
+
+/* Cost — minted rings and a market tick. */
+[data-app-icon="cost"] .desktop-app-icon-mask::before {
+  inset: 11%;
+  border: 1.5px double rgba(255,255,255,.5);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 4px rgba(255,255,255,.1);
+}
+[data-app-icon="cost"] .desktop-app-icon-mask::after {
+  inset: 24% 17%;
+  background: linear-gradient(145deg, transparent 46%, rgba(255,255,255,.34) 47% 51%, transparent 52%);
+  clip-path: polygon(0 66%, 26% 43%, 45% 56%, 74% 20%, 100% 35%, 100% 52%, 77% 38%, 49% 75%, 27% 62%, 0 86%);
+}
+
+/* Learning — open pages and radiating ideas. */
+[data-app-icon="learning"] .desktop-app-icon-mask::before {
+  inset: 25% 9% 13%;
+  border: 1px solid rgba(255,255,255,.42);
+  border-radius: 3px 3px 12px 12px;
+  background: linear-gradient(90deg, transparent 48%, rgba(255,255,255,.44) 49% 51%, transparent 52%);
+  transform: perspective(30px) rotateX(7deg);
+  box-shadow: none;
+}
+[data-app-icon="learning"] .desktop-app-icon-mask::after {
+  inset: 7% 24% auto;
+  height: 10px;
+  background: conic-gradient(from 70deg at 50% 100%, transparent 0 8%, rgba(255,255,255,.33) 8% 12%, transparent 12% 30%, rgba(255,255,255,.33) 30% 34%, transparent 34% 66%, rgba(255,255,255,.33) 66% 70%, transparent 70%);
+}
+
+/* Status — radar sweep, range rings and live contact. */
+[data-app-icon="status"] .desktop-app-icon-mask::before {
+  inset: 9%;
+  border: 1px solid rgba(255,255,255,.38);
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 0 24%, rgba(255,255,255,.18) 25% 27%, transparent 28% 49%, rgba(255,255,255,.14) 50% 52%, transparent 53%), conic-gradient(from 210deg, rgba(255,255,255,.26), transparent 24%);
+  box-shadow: none;
+}
+[data-app-icon="status"] .desktop-app-icon-mask::after {
+  inset: 14%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 69% 32%, white 0 2px, transparent 2.6px), linear-gradient(45deg, transparent 49%, rgba(255,255,255,.25) 50% 51%, transparent 52%);
+}
+
+/* Git — a proper branching graph. */
+[data-app-icon="git-dashboard"] .desktop-app-icon-mask::before {
+  inset: 8% 20%;
+  border: 0;
+  border-radius: 0;
+  background: radial-gradient(circle at 25% 18%, white 0 3px, transparent 3.5px), radial-gradient(circle at 25% 82%, white 0 3px, transparent 3.5px), radial-gradient(circle at 76% 50%, white 0 3px, transparent 3.5px), linear-gradient(90deg, rgba(255,255,255,.35) 0 2px, transparent 2px);
+  box-shadow: none;
+}
+[data-app-icon="git-dashboard"] .desktop-app-icon-mask::after {
+  inset: 18% 30%;
+  border-right: 2px solid rgba(255,255,255,.34);
+  border-radius: 0 50% 50% 0;
+  transform: rotate(-8deg);
+}
+
+/* Departments — organized, connected rooms. */
+[data-app-icon="departments"] .desktop-app-icon-mask::before {
+  inset: 12%;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,.25) 0 42%, transparent 42% 58%, rgba(255,255,255,.18) 58%), linear-gradient(transparent 0 42%, color-mix(in srgb, var(--app-secondary) 45%, transparent) 42% 58%, rgba(255,255,255,.16) 58%);
+  box-shadow: none;
+}
+[data-app-icon="departments"] .desktop-app-icon-mask::after {
+  inset: 8%;
+  background: linear-gradient(90deg, transparent 48%, rgba(255,255,255,.4) 49% 51%, transparent 52%), linear-gradient(transparent 48%, rgba(255,255,255,.4) 49% 51%, transparent 52%);
+}
+
+/* News — masthead plus editorial columns. */
+[data-app-icon="news"] .desktop-app-icon-mask::before {
+  inset: 13% 10%;
+  border: 1px solid rgba(255,255,255,.37);
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(255,255,255,.35) 0 4px, transparent 4px 9px, rgba(255,255,255,.14) 9px 10px, transparent 10px), repeating-linear-gradient(180deg, transparent 0 5px, rgba(255,255,255,.15) 5px 6px);
+  box-shadow: none;
+}
+[data-app-icon="news"] .desktop-app-icon-mask::after {
+  inset: 43% 17% 18%;
+  background: linear-gradient(90deg, rgba(255,255,255,.28) 0 42%, transparent 42% 52%, rgba(255,255,255,.18) 52%);
+}
+
+/* Settings — calibrated gear teeth around the actual control symbol. */
+[data-app-icon="settings"] .desktop-app-icon-mask::before {
+  inset: 10%;
+  border: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.38) 0 8deg, transparent 8deg 30deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 44%, #000 45% 67%, transparent 68%);
+  mask: radial-gradient(circle, transparent 0 44%, #000 45% 67%, transparent 68%);
+  box-shadow: none;
+}
+[data-app-icon="settings"] .desktop-app-icon-mask::after {
+  inset: 27%;
+  border: 1px solid rgba(255,255,255,.38);
+  border-radius: 50%;
+}
+
+/* Errors — hazard field and warning geometry stay distinct from app theme. */
+[data-app-icon="errors"] .desktop-app-icon-mask::before {
+  inset: 8%;
+  border: 0;
+  border-radius: 0;
+  background: repeating-linear-gradient(135deg, rgba(255,255,255,.2) 0 4px, transparent 4px 9px);
+  clip-path: polygon(50% 4%, 98% 91%, 2% 91%);
+  box-shadow: none;
+}
+[data-app-icon="errors"] .desktop-app-icon-mask::after {
+  inset: 19%;
+  border: 1px solid rgba(255,255,255,.48);
+  clip-path: polygon(50% 0, 100% 94%, 0 94%);
+}
+
+/* Hologram — luminous prism, projection base and scan planes. */
+[data-app-icon="hologram"] .desktop-app-icon-mask::before {
+  inset: 8% 18% 21%;
+  border: 1px solid rgba(255,255,255,.44);
+  border-radius: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.2), transparent 47%), linear-gradient(45deg, transparent 48%, rgba(255,255,255,.28) 49% 51%, transparent 52%);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  box-shadow: none;
+}
+[data-app-icon="hologram"] .desktop-app-icon-mask::after {
+  inset: auto 11% 11%;
+  height: 9px;
+  border: 1px solid rgba(255,255,255,.42);
+  border-radius: 50%;
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(255,255,255,.16) 2px 3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktop-app-icon-mask::before,
+  .desktop-app-icon-mask::after { transition: none !important; }
+}

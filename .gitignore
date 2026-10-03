@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.log
+# Superseded first draft; never publish the unrelated dashboard UI.
+/app.html
+/app.js
+/app.css
+/app-preview-desktop.png
+/app-preview-mobile.png
+/preview-desktop.png
+/preview-mobile.png
+/about.html
+/styles.css
+/demo.js

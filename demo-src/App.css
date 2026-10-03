@@ -1,0 +1,655 @@
+/* ───────────────────────────────────────────────────────────
+   App shell — just the top-level layout. Components own their
+   own CSS for everything else. The legacy App.css (264 lines
+   of single-letter selectors) is no longer relevant; this is
+   replaced wholesale.
+─────────────────────────────────────────────────────────── */
+
+.app-shell {
+  /* The whole AI presence inherits the current state palette. Settings
+   * supplies each non-error state; error remains fixed red. */
+  --ai-state-accent: var(--ai-idle);
+  --ai-accent: var(--ai-state-accent);
+  --ai-accent-text: color-mix(in srgb, var(--ai-state-accent) 66%, white);
+  --ai-accent-soft: color-mix(in srgb, var(--ai-state-accent) 16%, transparent);
+  --ai-accent-glow: color-mix(in srgb, var(--ai-state-accent) 42%, transparent);
+  display: flex;
+  flex-direction: column;
+  /* Full viewport height, ALWAYS. We deliberately don't shrink the
+   * shell when the iOS keyboard opens — that approach caused visible
+   * layout jumps because iOS fires visualViewport events many times
+   * per second during its keyboard animation, each one triggering a
+   * shell reflow + chat-scroll reflow + child layout pass.
+   *
+   * Instead: the shell stays full-screen, the keyboard SLIDES OVER
+   * the bottom of the app, and only the input bar (which is
+   * position:fixed, bottom: var(--kb-height)) tracks the keyboard.
+   * No other element resizes, so there's nothing to mistime visually. */
+  height: 100dvh;
+  /* Fallback for older Safari without dvh support. */
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg);
+}
+
+.app-shell.ai-state-thinking { --ai-state-accent: var(--ai-thinking); }
+.app-shell.ai-state-speaking { --ai-state-accent: var(--ai-speaking); }
+.app-shell.ai-state-attention { --ai-state-accent: var(--ai-attention); }
+.app-shell.ai-state-error { --ai-state-accent: var(--ai-error); }
+
+/* Floating AI widget in the bottom-right corner when chat has messages */
+.aiwidget-floating {
+  position: fixed;
+  bottom: 92px;       /* sit above the input row */
+  right: 24px;
+  z-index: 40;
+  pointer-events: auto;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+}
+
+/* Diagnostic: shown when API base != origin (e.g. dev pointing at localhost from a deployed host) */
+.app-api-base {
+  position: fixed;
+  bottom: 8px;
+  left: 8px;
+  font-size: 9.5px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  background: var(--bg-raised);
+  padding: 3px 8px;
+  border-radius: 4px;
+  z-index: 30;
+  border: 0.5px solid var(--border);
+  pointer-events: none;
+}
+
+/* ───────────────────────────────────────────────────────────
+   Touch & mobile adaptations.
+
+   Design rule: panels stay floating + draggable on every device.
+   We only scale sizes proportionately, add safe-area handling for
+   notched iPhones, and bump touch targets. We do NOT take features
+   away from the smaller form factors.
+
+   Three axes:
+   - Touch capability (hover: none): show always-on affordances
+     that desktop hides behind hover (action bars on AI messages).
+   - Tablet (721–1024px): slightly smaller default sizes, bigger
+     touch targets, dragging fully preserved.
+   - Phone (max-width: 720px): smaller sizes again, safe-area
+     handling, larger touch targets, dragging still preserved.
+─────────────────────────────────────────────────────────── */
+
+/* Always show action bars on touch devices — there is no hover
+   state to trigger them */
+@media (hover: none) and (pointer: coarse) {
+  .ai-actions,
+  .mp-item-actions,
+  .ap-row-actions,
+  .attach-tile-remove {
+    opacity: 1 !important;
+  }
+}
+
+/* ───── Tablet (iPad portrait / landscape) ───── */
+@media (min-width: 721px) and (max-width: 1024px) {
+  /* Touch-friendly tap targets — slightly larger than desktop */
+  .input-btn { width: 36px; height: 36px; }
+  .input-btn i { font-size: 20px; }
+  .send-btn { width: 36px; height: 36px; }
+  .topbar-btn { padding: 6px; }
+  .topbar-btn i { font-size: 18px; }
+
+  /* Fleet view default height — proportionate to a smaller screen */
+  .ap-fleet { height: 360px; }
+}
+
+/* ───── Phone ───── */
+@media (max-width: 720px) {
+  /* Topbar respects the top safe-area on notched iPhones */
+  .topbar {
+    padding-top: env(safe-area-inset-top, 0px);
+    height: calc(42px + env(safe-area-inset-top, 0px));
+    padding-left: max(10px, env(safe-area-inset-left, 0px));
+    padding-right: max(10px, env(safe-area-inset-right, 0px));
+    gap: 4px;
+  }
+  .topbar-btn { width: 36px; height: 36px; padding: 0; }
+  .topbar-btn i { font-size: 18px; }
+  .topbar-textbtn { padding: 8px 10px; font-size: 12.5px; }
+  .topbar-divider { margin: 0 2px; }
+
+  /* Tighter chat side padding for a small viewport */
+  .chat-scroll { padding: 12px 12px 0 12px; }
+
+  /* Input row — position:fixed, glued to the top of the soft keyboard
+     via --kb-height (0 when keyboard closed → input sits at the bottom
+     of the screen with safe-area-inset for the home indicator; >0 when
+     keyboard open → input sits just above the keyboard).
+     The keyboard slides OVER everything else; only the input tracks it. */
+  .input-area {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--kb-height, 0px);
+    z-index: 20;
+    background: var(--bg);
+    padding: 8px 12px 12px 12px;
+    /* When keyboard is closed (--kb-height: 0), include safe-area
+       inset for the home indicator. When open, the home indicator
+       isn't visible anyway. */
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+
+  /* Center the avatar + launcher ring in the VISIBLE area between the
+     topbar and the docked input — not the full viewport. The bottom
+     input dock is taller than the topbar, so full-viewport flex-centering
+     pushed the whole hub assembly visibly low ("the ai for the dashboard
+     is shifted wrong and not centered"). Carving the chrome out of the
+     canvas makes the avatar land in the real optical middle. */
+  .hub-canvas {
+    top: calc(44px + env(safe-area-inset-top, 0px));
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Action bar tap targets */
+  .ai-actbtn { padding: 8px; min-width: 36px; min-height: 36px; }
+  .ai-actbtn i { font-size: 18px; }
+  .ai-cost { display: none; } /* not enough room on a phone */
+
+  /* Input row buttons — HIG-compliant 44×44 */
+  .input-btn { width: 44px; height: 44px; border-radius: 10px; }
+  .input-btn i { font-size: 22px; }
+  .send-btn { width: 44px; height: 44px; }
+  .send-btn i { font-size: 18px; }
+
+  /* iOS Safari auto-zoom suppression — iOS aggressively zooms when
+     focusing an input with font-size <16px. Without this, every text
+     field triggers a viewport zoom that pulls up the keyboard with
+     animation, which feels like the page is "doing weird stuff."
+     Applies to ALL text inputs/textareas/contenteditable across the
+     entire UI. The 16px rule must beat component-level CSS that may
+     set smaller fonts, so we use a high-specificity selector. */
+  input[type="text"],
+  input[type="search"],
+  input[type="email"],
+  input[type="url"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="number"],
+  input:not([type]),
+  textarea,
+  [contenteditable="true"] {
+    font-size: 16px !important;
+  }
+
+  /* iOS Safari auto-zooms inputs with font-size <16px on focus */
+  .input-textarea { min-height: 28px; font-size: 16px; }
+  .dp-direct-input { font-size: 16px !important; min-height: 56px; padding: 10px 12px !important; }
+  .dp-direct-help { font-size: 11px; margin-bottom: 8px; }
+
+  .ai-meta { flex-wrap: wrap; }
+  .user-bubble { max-width: 88%; }
+
+  /* Floating panels remain draggable + resizable. We only adjust
+     defaults via the FloatingPanel component (size cap on small
+     viewports). CSS stays out of position/size hereaside from
+     touch niceties. */
+
+  /* Files panel — stack tree on top of preview when narrow */
+  .fpa-body { flex-direction: column; min-height: 0; max-height: none; }
+  .fpa-tree { width: 100%; max-height: 40vh; border-right: none; border-bottom: 0.5px solid var(--border); }
+  .fpa-preview { flex: 1; min-height: 0; }
+
+  /* Fleet view — height + touch-action so the component's pinch
+     handler gets clean events */
+  .ap-fleet { height: 320px; touch-action: none; }
+  .ap-corner-label, .ap-legend { font-size: 8px; }
+  .ap-fleet-zoombtn { width: 36px; height: 36px; }
+  .ap-fleet-zoombtn i { font-size: 14px; }
+  .ap-fleet-recenter { width: 36px; height: 36px; }
+
+  /* Activity-panel filter chips scroll horizontally instead of
+     wrapping when the panel is narrow */
+  .ap2-chips {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ap2-chips::-webkit-scrollbar { display: none; }
+
+  .attach-tiles { gap: 8px; }
+}
+
+/* Very narrow phones (iPhone SE etc) */
+@media (max-width: 380px) {
+  .attach-tile { width: 72px; height: 72px; }
+  .topbar { padding: 0 8px; gap: 2px; }
+  .topbar-textbtn { padding: 6px 6px; font-size: 11px; }
+  .topbar-btn { width: 34px; height: 34px; }
+  .topbar-btn i { font-size: 16px; }
+  .topbar-divider { display: none; }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Attention mode — when the AI has a pending decision waiting on
+   the user's input. Reflects the system state through the whole
+   chrome, not just a small widget, so the interface itself signals
+   "your turn".
+
+   Implementation: we override --accent and --accent-strong CSS variables
+   on the app-shell scope. Every component that uses var(--accent) for
+   accents (dot indicators, focus rings, button highlights, link
+   colors, etc.) inherits the amber treatment automatically.
+
+   Subtle by design — a tinted hue shift, not a flashing alert. The
+   goal is "calm but unmistakable", not "screaming red".
+──────────────────────────────────────────────────────────── */
+
+.app-shell.app-attention-mode {
+  --accent: var(--ai-attention);
+  --accent-strong: var(--ai-attention);
+  /* Slight chrome warm shift so it's recognizable even when accents
+   * are off-screen. ~3% warm overlay is the threshold of perception
+   * for most people without becoming uncomfortable. */
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bg) 97%, var(--ai-attention) 3%),
+    color-mix(in srgb, var(--bg) 99%, var(--ai-attention) 1%)
+  );
+}
+
+/* Topbar gets a thin amber underline strip — a persistent reminder
+   even when scrolled deep in chat. */
+.app-shell.app-attention-mode .topbar {
+  box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--ai-attention) 60%, transparent);
+}
+
+/* Status dot in topbar — pulse amber instead of green. */
+.app-shell.app-attention-mode .topbar-status-dot {
+  background: var(--ai-attention);
+  box-shadow: 0 0 6px var(--ai-attention);
+  animation: app-attention-pulse 1.6s ease-in-out infinite;
+}
+@keyframes app-attention-pulse {
+  0%, 100% { opacity: 0.7; }
+  50%      { opacity: 1; }
+}
+
+/* Floating panel header strips warm slightly */
+.app-shell.app-attention-mode .floating-panel-header {
+  border-bottom-color: color-mix(in srgb, var(--border) 70%, var(--ai-attention) 30%);
+}
+
+/* Input row border picks up the warm */
+.app-shell.app-attention-mode .input-area {
+  border-top-color: color-mix(in srgb, var(--border) 60%, var(--ai-attention) 40%);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Backend offline mode — when the UI can't reach the backend.
+   Same reflective-styling approach as attention mode but in red,
+   so the system state is unmistakable at a glance.
+
+   We override --accent → red, plus a stronger background warm shift
+   (5% red vs 3% amber for attention) because offline is more urgent
+   than "waiting on user".
+──────────────────────────────────────────────────────────── */
+
+.app-shell.app-offline-mode {
+  --accent: var(--red);
+  --accent-strong: var(--red);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bg) 95%, var(--red) 5%),
+    color-mix(in srgb, var(--bg) 98%, var(--red) 2%)
+  );
+}
+
+.app-shell.app-offline-mode .topbar {
+  box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--red) 60%, transparent);
+}
+
+.app-shell.app-offline-mode .topbar-status-dot {
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+}
+
+.app-shell.app-offline-mode .input-area {
+  border-top-color: color-mix(in srgb, var(--border) 50%, var(--red) 50%);
+}
+
+.app-shell.app-offline-mode .floating-panel-header {
+  border-bottom-color: color-mix(in srgb, var(--border) 60%, var(--red) 40%);
+}
+
+/* ── Hub mode — chat docks; the holographic avatar is the canvas ── */
+.hub-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+.hub-grid {
+  position: absolute;
+  inset: -20%;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--ai-accent) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--ai-accent) 5%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.9), transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.9), transparent 75%);
+  animation: hub-grid-drift 60s linear infinite;
+}
+@keyframes hub-grid-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(48px, 48px, 0); }
+}
+.hub-avatar-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: auto;
+}
+.hub-avatar-wrap canvas[role="button"] {
+  border-radius: 50%;
+  transition: filter 160ms ease, transform 120ms ease, outline-color 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.hub-avatar-wrap canvas[role="button"]:focus-visible {
+  outline: 2px solid var(--ai-accent);
+  outline-offset: 4px;
+  filter: drop-shadow(0 0 14px var(--ai-accent-glow));
+}
+.hub-avatar-wrap canvas[role="button"]:active {
+  transform: scale(0.985);
+  filter: brightness(1.08) saturate(1.06);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hub-avatar-wrap canvas[role="button"]:hover {
+    filter: brightness(1.06) drop-shadow(0 0 12px var(--ai-accent-soft));
+  }
+}
+.hub-avatar-name {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  letter-spacing: 0.55em;
+  padding-left: 0.55em; /* optical centering for tracking */
+  color: color-mix(in srgb, var(--ai-accent-text) 68%, transparent);
+  text-shadow: 0 0 12px var(--ai-accent-glow);
+}
+
+/* Chat embedded inside its FloatingPanel window (hub mode).
+   The classic chat layout uses position:fixed for both the chat area
+   and the input bar; inside a window both must join normal flow so
+   the panel's drag/resize/maximize geometry contains them. */
+.fp .chat-area.chat-embedded {
+  position: relative;
+  top: auto; left: auto; right: auto; bottom: auto;
+  height: 100%;
+  min-height: 0;
+}
+.fp .chat-area.chat-embedded .input-area {
+  position: relative;
+  bottom: auto; left: auto; right: auto;
+  flex: 0 0 auto;
+}
+
+/* ── Link tray — links the AI pops onto the screen ────────────────── */
+.link-tray {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 1200;
+  width: min(320px, calc(100vw - 36px));
+  border: 1px solid rgba(120, 220, 255, 0.22);
+  border-radius: 12px;
+  background: rgba(8, 18, 28, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  animation: link-tray-in 0.25s ease-out;
+}
+@keyframes link-tray-in { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+.link-tray-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px;
+  font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: rgba(170, 225, 255, 0.75);
+  border-bottom: 1px solid rgba(120, 220, 255, 0.12);
+}
+.link-tray-head i { margin-right: 6px; }
+.link-tray-close { background: none; border: none; color: inherit; cursor: pointer; padding: 2px 4px; }
+.link-tray-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px;
+  color: rgba(200, 235, 255, 0.92);
+  text-decoration: none;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(120, 220, 255, 0.06);
+}
+.link-tray-item:last-child { border-bottom: none; }
+.link-tray-item:focus-visible { outline: 2px solid var(--ai-accent); outline-offset: -2px; background: var(--ai-accent-soft); }
+.link-tray-item:active { background: var(--ai-accent-soft); transform: scale(.995); }
+.link-tray-item span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Quick hub launcher — radial ring around the avatar ──────────── */
+.hub-launcher {
+  position: absolute;
+  inset: -12%;
+  z-index: 20;
+  pointer-events: none; /* only the items take clicks */
+}
+.hub-launcher-ring {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 92%; height: 92%;
+  transform: translate(-50%, -50%);
+  animation: hub-ring-in 0.3s ease-out;
+}
+.hub-launcher-ring::before {
+  /* The spinning dashes live on a pseudo-element so the rotation can
+     never interact with the container's centering translate (the CSS
+     `rotate` property applies before `transform`, which made rotate
+     spin the -50% offset itself — the ring orbited away). */
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px dashed color-mix(in srgb, var(--ai-accent) 28%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 24px color-mix(in srgb, var(--ai-accent) 8%, transparent) inset;
+  animation: hub-ring-spin 80s linear infinite;
+}
+@keyframes hub-ring-in { from { transform: translate(-50%, -50%) scale(0.7); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+@keyframes hub-ring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.hub-launcher-item {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  color: rgba(205, 235, 255, 0.92);
+  cursor: pointer;
+  pointer-events: auto;
+  animation: hub-item-in 0.28s ease-out backwards;
+}
+@keyframes hub-item-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.hub-launcher-disc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--ai-accent) 45%, transparent);
+  background: radial-gradient(circle at 35% 30%, var(--ai-accent-soft), color-mix(in srgb, var(--bg-deep) 92%, transparent) 70%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--ai-accent) 22%, transparent), 0 4px 14px rgba(0, 0, 0, 0.5);
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+.hub-launcher-disc i { font-size: 21px; color: var(--ai-accent); }
+.hub-launcher-label {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(170, 225, 255, 0.85);
+  text-shadow: 0 0 10px rgba(8, 18, 28, 0.9), 0 1px 3px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ── In-app link viewer ──────────────────────────────────────────── */
+.viewer-body { position: relative; height: 100%; min-height: 0; }
+.viewer-blocked-note {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 24px;
+  text-align: center;
+  font-size: 12.5px;
+  color: rgba(180, 220, 245, 0.55);
+  z-index: 0;
+}
+.viewer-frame {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+}
+.viewer-ext {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+.viewer-ext:focus-visible { background: var(--ai-accent-soft); outline: 2px solid var(--ai-accent); outline-offset: 1px; }
+.viewer-ext:active { background: var(--ai-accent-soft); transform: scale(.98); }
+.link-tray-item { width: 100%; background: none; border: none; cursor: pointer; font: inherit; text-align: left; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ── Small screens: hub scales to the phone ───────────────────────── */
+@media (max-width: 760px) {
+  .hub-avatar-wrap { transform: scale(0.88); }
+  .hub-launcher { inset: -22%; }
+  .hub-launcher-disc { width: 44px; height: 44px; }
+  .hub-launcher-disc i { font-size: 18px; }
+  .hub-launcher-label { font-size: 9.5px; }
+}
+
+.chat-project-chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 10px; font-size: 11px; color: #7f93a8;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .link-tray-item:hover,
+  .viewer-ext:hover { background: var(--ai-accent-soft); }
+  .hub-launcher-item:hover .hub-launcher-disc {
+    transform: scale(1.14);
+    border-color: var(--ai-accent);
+    box-shadow: 0 0 26px var(--ai-accent-glow), 0 4px 14px rgba(0, 0, 0, 0.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hub-grid,
+  .hub-launcher-ring,
+  .hub-launcher-ring::before,
+  .hub-launcher-item,
+  .link-tray {
+    animation: none !important;
+  }
+  .hub-avatar-wrap canvas[role="button"],
+  .hub-launcher-disc {
+    transition: none !important;
+  }
+}
+.chat-project-chip select {
+  background: #0e1420; border: 1px solid #22303f; color: #9fc4d4;
+  border-radius: 5px; padding: 2px 6px; font-size: 11px; font-family: inherit;
+}
